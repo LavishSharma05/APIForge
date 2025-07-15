@@ -32,6 +32,7 @@ export async function GET(req:NextRequest){
         return NextResponse.json({history},{status:201})
     }
     catch(error){
+        console.error(error)
         return NextResponse.json(
             {error:"Internal Server Error"},
             {status:500}
