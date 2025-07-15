@@ -24,7 +24,7 @@ export default function Header() {
   return (
     <header className="bg-gray-800 text-white px-6 py-4 flex justify-between items-center">
       <h1 className="text-xl font-bold">
-        <Link href="/">Postman Clone</Link>
+        <Link href="/">APIForge</Link>
       </h1>
 
       <nav className="space-x-4">
