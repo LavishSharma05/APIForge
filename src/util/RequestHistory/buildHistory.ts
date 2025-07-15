@@ -10,11 +10,6 @@ type historyField={
     timestamp:string,
 }
 
-type FormField = {
-  key: string;
-  value: string | File;
-  type: "text" | "file";
-};
 
 const buildHistory=(): historyField=>{
     const {
@@ -24,7 +19,6 @@ const buildHistory=(): historyField=>{
         requestBody,
         formFields,
         urlEncodedFields,
-        binaryBody,
         headerFields,
     }=useRequestStore.getState()
 

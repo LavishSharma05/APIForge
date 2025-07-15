@@ -19,6 +19,7 @@ export async function GET(req:NextRequest){
             };
         }
         catch(err){
+            console.error(err)
             return NextResponse.json({ error: "Invalid or expired token" }, { status: 401 });
         }
         
@@ -30,8 +31,7 @@ export async function GET(req:NextRequest){
 
         return NextResponse.json({history},{status:201})
     }
-    catch(err){
-        console.log(err)
+    catch(error){
         return NextResponse.json(
             {error:"Internal Server Error"},
             {status:500}

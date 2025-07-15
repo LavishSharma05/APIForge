@@ -14,10 +14,8 @@ import { validateFormFields } from "@/util/api/validateFormFields";
 import { sendUrlEncodedRequest } from "@/util/api/sendUrlEncodedRequest";
 import { validateUrlEncodedFields } from "@/util/api/validateUrlEncodedFields";
 import { sendBinaryRequest } from "@/util/api/sendBinaryRequest";
-import RequestHeaders from "./BodyComponents/RequestHeaders";
 import { buildHeadersFromFields } from "@/util/api/buildHeaderFormFields";
 import useHistoryStore from "@/store/useHistory";
-import { timeStamp } from "console";
 import buildHistory from "@/util/RequestHistory/buildHistory";
 import logHistory from "@/util/api/logHistory"
 
@@ -43,8 +41,6 @@ function FrontForm() {
   const {
     method,
     url,
-    responseStatus,
-    responseBody,
     loading,
     error,
     requestBody,
@@ -53,15 +49,11 @@ function FrontForm() {
     formFields,
     urlEncodedFields,
     binaryBody,
-    headersVisible,
     headerFields,
   } = useRequestStore();
 
   const{
     addHistory,
-    clearHistory,
-    deleteHistory,
-    history
   }=useHistoryStore.getState()
 
   const handleSend = async () => {
@@ -78,6 +70,7 @@ function FrontForm() {
       }
       setField("error", ""); // Clear any previous error
     } catch (err) {
+      console.error(err)
       setField("error", "Please enter a valid URL");
       return;
     }
@@ -268,6 +261,7 @@ function FrontForm() {
 
       setField("error", ""); // Clear any error after success
     } catch (err) {
+      console.error(err)
       setField("error", "An error occurred while sending the request.");
     } finally {
       setField("loading", false);

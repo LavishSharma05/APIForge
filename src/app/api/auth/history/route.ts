@@ -19,6 +19,7 @@ export async function POST(req:NextRequest){
             };
         }
         catch(err){
+            console.log(err)
             return NextResponse.json({ error: "Invalid or expired token" }, { status: 401 });
         }
         

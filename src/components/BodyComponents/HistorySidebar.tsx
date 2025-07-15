@@ -1,8 +1,6 @@
 "use client";
-import React, { useEffect } from "react";
 import useHistoryStore from "@/store/useHistory";
 import useRequestStore from "@/store/requestStore";
-import fetchHistory from "@/util/api/fetchHistoryFromDB";
 import deleteAllHistoryFromDB from "@/util/api/deleteHistoryFromDb";
 
 type HistoryField = {
