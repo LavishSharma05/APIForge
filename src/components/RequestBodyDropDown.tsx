@@ -6,10 +6,10 @@ function RequestBodyDropDown() {
   const setField = useRequestStore((state) => state.setField);
 
   return (
-    <div className="mt-4">
+    <div className="mt-4 w-full">
       <label
         htmlFor="bodyType"
-        className="text-sm font-medium text-gray-700 block mb-1"
+        className="block mb-1 text-sm font-medium text-gray-700"
       >
         Body Type
       </label>
@@ -17,7 +17,7 @@ function RequestBodyDropDown() {
         id="bodyType"
         value={bodyType}
         onChange={(e) => setField("bodyType", e.target.value)}
-        className="border border-gray-300 rounded px-3 py-2 w-full"
+        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
       >
         <option value="none">None</option>
         <option value="json">JSON</option>

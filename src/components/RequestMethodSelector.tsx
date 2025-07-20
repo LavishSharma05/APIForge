@@ -5,14 +5,14 @@ function RequestMethodSelector() {
   const method = useRequestStore((state) => state.method);
   const url = useRequestStore((state) => state.url);
   const setField = useRequestStore((state) => state.setField);
- 
+
   return (
-    <div className="flex items-center gap-4 mb-4">
+    <div className="flex flex-col sm:flex-row gap-3 mb-4">
       {/* Method Dropdown */}
       <select
         id="method"
         name="method"
-        className="border border-gray-300 rounded px-3 py-2"
+        className="w-full sm:w-32 border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         value={method}
         onChange={(e) => setField('method', e.target.value)}
       >
@@ -26,7 +26,7 @@ function RequestMethodSelector() {
       <input
         type="text"
         placeholder="https://example.com/api/blog"
-        className="flex-grow border border-gray-300 rounded px-3 py-2"
+        className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         value={url}
         onChange={(e) => setField('url', e.target.value)}
       />
