@@ -185,7 +185,6 @@ export const useTabsStore = create<TabsState>((set, get) => ({
     const defaults = createNewTab();
     get().updateActiveTab({
       ...defaults,
-      id: activeId,
       name: activeTab.name
     });
   }
