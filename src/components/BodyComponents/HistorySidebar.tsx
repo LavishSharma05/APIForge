@@ -24,10 +24,8 @@ function HistorySidebar() {
   const clearHistory = useHistoryStore((state) => state.clearHistory);
 
   const {
-    tabs,
     activeTabId,
-    updateActiveTab,
-    setActiveTab
+    updateActiveTab
   } = useTabsStore();
 
   const handleClear = () => {
