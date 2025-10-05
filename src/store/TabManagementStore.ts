@@ -35,15 +35,15 @@ interface TabsState {
   // Actions to manipulate the active tab's fields
   addFormField: () => void;
   removeFormField: (id: string) => void;
-  updateFormField: (id: string, fieldName: keyof FormField, newValue: any) => void;
+  updateFormField: (id: string, fieldName: keyof FormField, newValue: string | File | null) => void;
 
   addUrlEncodedField: () => void;
   removeUrlEncodedField: (id: string) => void;
-  updateUrlEncodedField: (id: string, fieldName: keyof UrlEncodedField, newValue: any) => void;
+  updateUrlEncodedField: (id: string, fieldName: keyof UrlEncodedField, newValue: string) => void;
 
   addHeaderField: () => void;
   removeHeaderField: (id: string) => void;
-  updateHeaderField: (id: string, fieldName: keyof HeaderField, newValue: any) => void;
+  updateHeaderField: (id: string, fieldName: keyof HeaderField, newValue: string) => void;
 
   resetActiveTab: () => void;
 }
@@ -120,7 +120,14 @@ export const useTabsStore = create<TabsState>((set, get) => ({
     const tab = get().tabs.find(t => t.id === get().activeTabId);
     if (!tab) return;
     get().updateActiveTab({
-      formFields: tab.formFields.map((field) => field.id === id ? { ...field, [fieldName]: newValue } : field)
+      // FIXED: Use type assertion to satisfy TypeScript's strict checking for computed property names
+      formFields: tab.formFields.map((field) => {
+        if (field.id === id) {
+          // Temporarily assert the resulting object back to FormField
+          return { ...field, [fieldName]: newValue } as FormField;
+        }
+        return field;
+      })
     });
   },
 
