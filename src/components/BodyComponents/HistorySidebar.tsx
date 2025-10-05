@@ -1,6 +1,5 @@
 "use client";
 import React from "react";
-useTabsStore
 import useHistoryStore from "@/store/useHistory";
 import deleteAllHistoryFromDB from "@/util/api/deleteHistoryFromDb";
 import { useTabsStore } from "@/store/TabManagementStore";
