@@ -50,8 +50,6 @@ function FrontForm({ tabData }: { tabData: Tab }) {
     urlEncodedFields,
     binaryBody,
     headerFields,
-    responseBody,
-    responseStatus,
   } = tabData;
 
   const { updateActiveTab } = useTabsStore();
