@@ -5,7 +5,7 @@ export type UrlEncodedField = {
 
 export async function sendUrlEncodedRequest(
   url: string,
-  method: "POST" | "PUT",
+  method: string,
   fields: UrlEncodedField[],
   headers: Record<string, string> = {}
 ): Promise<Response> {

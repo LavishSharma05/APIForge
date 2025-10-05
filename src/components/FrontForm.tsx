@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import RequestMethodSelector from "./RequestMethodSelector";
-import useRequestStore from "@/store/requestStore";
+//import useRequestStore from "@/store/requestStore";
 import RequestBody from "./RequestBody";
 import LoadingWheel from "./LoadingWheel";
 import ResponseViewer from "./ResponseViewer";
@@ -18,10 +18,11 @@ import { buildHeadersFromFields } from "@/util/api/buildHeaderFormFields";
 import useHistoryStore from "@/store/useHistory";
 import buildHistory from "@/util/RequestHistory/buildHistory";
 import logHistory from "@/util/api/logHistory"
+import { Tab,useTabsStore } from "@/store/TabManagementStore";
 
 
 type FormField = {
-  id: number;
+  id: string;
   key: string;
   value: string | File;
   type: "text" | "file";
@@ -29,7 +30,7 @@ type FormField = {
 };
 
 type UrlEncodedField = {
-  id: number;
+  id: string;
   key: string;
   value: string;
   description: string;
@@ -37,48 +38,49 @@ type UrlEncodedField = {
 
 
 
-function FrontForm() {
+function FrontForm({ tabData }: { tabData: Tab }) {
   const {
     method,
     url,
-    loading,
+    isLoading,
     error,
     requestBody,
     bodyType,
-    setField,
     formFields,
     urlEncodedFields,
     binaryBody,
     headerFields,
-  } = useRequestStore();
+    responseBody,
+    responseStatus,
+  } = tabData;
 
-  const{
+  const { updateActiveTab } = useTabsStore();
+  
+  const{ 
     addHistory,
   }=useHistoryStore.getState()
 
   const handleSend = async () => {
+    
     if (!url) {
-      setField("error", "Please enter a valid URL");
+      updateActiveTab({error: "Please enter a valid URL"});
       return;
     }
 
     try {
       const parsedURL = new URL(url);
       if (parsedURL.protocol !== "http:" && parsedURL.protocol !== "https:") {
-        setField("error", "Please enter a valid URL with http:// or https://");
+        updateActiveTab({ error: "Please enter a valid URL with http:// or https://" });
         return;
       }
-      setField("error", ""); // Clear any previous error
+      updateActiveTab({error: ""}); // Clear any previous error
     } catch (err) {
       console.error(err)
-      setField("error", "Please enter a valid URL");
+      updateActiveTab({error: "Please enter a valid URL"});
       return;
     }
 
-    setField("responseStatus", "");
-    setField("responseBody", "");
-    setField("error", ""); // Clear error before sending
-    setField("loading", true);
+    updateActiveTab({ responseStatus: "", responseBody: "", error: "", isLoading: true });
 
     try {
       if (method === "GET") {
@@ -88,11 +90,11 @@ function FrontForm() {
         
 
         const { statusCode, statusText, body } = await handleResponse(response);
-        setField("responseStatus", `${statusCode} ${statusText}`);
-        setField("responseBody", body);
+        updateActiveTab({responseStatus: `${statusCode} ${statusText}`});
+        updateActiveTab({responseBody: body});
 
         if (statusCode >= 400) {
-          setField("error", `Error ${statusCode}: ${statusText}`);
+          updateActiveTab({error: `Error ${statusCode}: ${statusText}`});
         }
 
         addHistory(buildHistory())
@@ -103,11 +105,11 @@ function FrontForm() {
         const response = await sendDeleteRequest(url,headers);
 
         const { statusCode, statusText, body } = await handleResponse(response);
-        setField("responseStatus", `${statusCode} ${statusText}`);
-        setField("responseBody", body);
+        updateActiveTab({responseStatus: `${statusCode} ${statusText}`});
+        updateActiveTab({responseBody: body});
 
         if (statusCode >= 400) {
-          setField("error", `Error ${statusCode}: ${statusText}`);
+          updateActiveTab({error: `Error ${statusCode}: ${statusText}`});
         }
 
         addHistory(buildHistory())
@@ -118,8 +120,8 @@ function FrontForm() {
       if (bodyType === "json") {
         if (method === "POST" || method === "PUT") {
           if (!requestBody || requestBody.trim() === "") {
-            setField("error", "Please enter a valid request body");
-            setField("loading", false);
+            updateActiveTab({error: "Please enter a valid request body"});
+            updateActiveTab({isLoading: false});
             return;
           }
 
@@ -130,21 +132,21 @@ function FrontForm() {
             const { statusCode, statusText, body } = await handleResponse(
               response
             );
-            setField("responseStatus", `${statusCode} ${statusText}`);
-            setField("responseBody", body);
+            updateActiveTab({responseStatus: `${statusCode} ${statusText}`});
+            updateActiveTab({responseBody: body});
             
             if (statusCode >= 400) {
-              setField("error", `Error ${statusCode}: ${statusText}`);
+              updateActiveTab({error: `Error ${statusCode}: ${statusText}`});
             }
 
             addHistory(buildHistory())
             logHistory()
           } catch (err) {
-            setField(
-              "error",
+            updateActiveTab(
+              {error:
               (err as Error).message ||
                 "An error occurred while sending form-data."
-            );
+          });
           }
         }
       } else if (bodyType === "form-data") {
@@ -155,8 +157,8 @@ function FrontForm() {
 
           const validationError = validateFormFields(filledFields);
           if (validationError) {
-            setField("error", validationError);
-            setField("loading", false);
+            updateActiveTab({error: validationError});
+            updateActiveTab({isLoading: false});
             return;
           }
 
@@ -172,18 +174,18 @@ function FrontForm() {
             const { statusCode, statusText, body } = await handleResponse(
               response
             );
-            setField("responseStatus", `${statusCode} ${statusText}`);
-            setField("responseBody", body);
+            updateActiveTab({responseStatus: `${statusCode} ${statusText}`});
+            updateActiveTab({responseBody: body});
             if (statusCode >= 400) {
-              setField("error", `Error ${statusCode}: ${statusText}`);
+              updateActiveTab({error: `Error ${statusCode}: ${statusText}`});
             }
             addHistory(buildHistory())
             logHistory()
 
           } catch (err) {
-            setField("error", (err as Error).message);
+            updateActiveTab({error: (err as Error).message});
           } finally {
-            setField("loading", false);
+            updateActiveTab({isLoading: false});
           }
         }
       } else if (bodyType === "x-www-form-urlencoded") {
@@ -193,8 +195,8 @@ function FrontForm() {
 
         const validationError = validateUrlEncodedFields(filledFields);
         if (validationError) {
-          setField("error", validationError);
-          setField("loading", false);
+          updateActiveTab({error: validationError});
+          updateActiveTab({isLoading: false});
           return;
         }
 
@@ -211,27 +213,27 @@ function FrontForm() {
           const { statusCode, statusText, body } = await handleResponse(
             response
           );
-          setField("responseStatus", `${statusCode} ${statusText}`);
-          setField("responseBody", body);
+          updateActiveTab({responseStatus: `${statusCode} ${statusText}`});
+        updateActiveTab({responseBody: body});
           if (statusCode >= 400) {
-            setField("error", `Error ${statusCode}: ${statusText}`);
+            updateActiveTab({error: `Error ${statusCode}: ${statusText}`});
           }
           addHistory(buildHistory())
           logHistory()
         } catch (err) {
-          setField(
-            "error",
+          updateActiveTab(
+            {error:
             (err as Error).message ||
               "An error occurred while sending urlencoded data."
-          );
+          });
         } finally {
-          setField("loading", false);
+          updateActiveTab({isLoading: false});
         }
       } else if (bodyType === "binary") {
         if (method === "POST" || method === "PUT") {
           if (!binaryBody) {
-            setField("error", "Please select a binary file to upload.");
-            setField("loading", false);
+            updateActiveTab({error: "Please select a binary file to upload."});
+            updateActiveTab({isLoading: false});
             return;
           }
 
@@ -242,79 +244,80 @@ function FrontForm() {
             const { statusCode, statusText, body } = await handleResponse(
               response
             );
-            setField("responseStatus", `${statusCode} ${statusText}`);
-            setField("responseBody", body);
+            updateActiveTab({responseStatus: `${statusCode} ${statusText}`});
+        updateActiveTab({responseBody: body});
 
             if (statusCode >= 400) {
-              setField("error", `Error ${statusCode}: ${statusText}`);
+              updateActiveTab({error: `Error ${statusCode}: ${statusText}`});
             }
 
             addHistory(buildHistory())
             logHistory()
           } catch (err) {
-            setField("error", (err as Error).message);
+            updateActiveTab({error: (err as Error).message});
           } finally {
-            setField("loading", false);
+            updateActiveTab({isLoading: false});
           }
         }
       }
 
-      setField("error", ""); // Clear any error after success
+      updateActiveTab({error: ""}); // Clear any error after success
     } catch (err) {
       console.error(err)
-      setField("error", "An error occurred while sending the request.");
+      updateActiveTab({error: "An error occurred while sending the request."});
     } finally {
-      setField("loading", false);
+      updateActiveTab({isLoading: false});
     }
   };
 
   const handleClear = () => {
-    setField("method", "GET");
-    setField("url", "");
-    setField("responseStatus", "");
-    setField("responseBody", "");
-    setField("error", "");
-    setField("loading", false);
-    setField("binaryBody", null);
+    updateActiveTab({method: "GET"});
+    updateActiveTab({url: ""});
+    updateActiveTab({responseStatus: ""});
+    updateActiveTab({responseBody: ""});
+    updateActiveTab({error: ""});
+    updateActiveTab({isLoading: false});
+    updateActiveTab({binaryBody: null});
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-start justify-center py-10 px-4">
-      <div className="bg-white p-6 sm:p-8 rounded-xl shadow-lg w-full max-w-5xl overflow-auto">
-        <RequestMethodSelector />
+    <div className="min-h-screen bg-gray-900 flex items-start justify-center py-10 px-4">
+  <div className="bg-gray-800 p-6 sm:p-8 rounded-xl shadow-lg w-full max-w-5xl overflow-auto">
+    <RequestMethodSelector />
 
-        {/* Request Body Input */}
+    {/* Request Body Input */}
+    <RequestBody />
 
-        <RequestBody />
-
-        <div className="flex gap-4 mt-4">
-          <button
-            className={`px-4 py-2 rounded text-white ${
-              loading
-                ? "bg-blue-300 cursor-not-allowed"
-                : "bg-blue-500 hover:bg-blue-600"
-            }`}
-            onClick={handleSend}
-            disabled={loading}
-          >
-            {loading ? `Sending...` : `Send`}
-          </button>
-          <button
-            className="bg-gray-300 text-black px-4 py-2 rounded hover:bg-gray-400"
-            onClick={handleClear}
-          >
-            Clear
-          </button>
-        </div>
-        {loading ? (
-          <LoadingWheel />
-        ) : error ? (
-          <div className="mt-4 text-red-600 font-medium">{error}</div>
-        ) : (
-          <ResponseViewer />
-        )}
-      </div>
+    <div className="flex gap-4 mt-4">
+      <button
+        className={`px-4 py-2 rounded text-white ${
+          isLoading
+            ? 'bg-blue-300 dark:bg-blue-400 cursor-not-allowed'
+            : 'bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700'
+        }`}
+        onClick={handleSend}
+        disabled={isLoading}
+      >
+        {isLoading ? 'Sending...' : 'Send'}
+      </button>
+      <button
+        className="bg-gray-300 dark:bg-gray-700 text-black dark:text-white px-4 py-2 rounded hover:bg-gray-400 dark:hover:bg-gray-600"
+        onClick={handleClear}
+      >
+        Clear
+      </button>
     </div>
+
+    {isLoading ? (
+      <LoadingWheel />
+    ) : error ? (
+      <div className="mt-4 text-red-600 dark:text-red-400 font-medium">{error}</div>
+    ) : (
+      <ResponseViewer />
+    )}
+  </div>
+</div>
+
   );
 }
 

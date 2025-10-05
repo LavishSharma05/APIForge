@@ -1,24 +1,27 @@
-import useRequestStore from '@/store/requestStore';
-import React from 'react';
+"use client";
+import React from "react";
+import { useTabsStore } from "@/store/TabManagementStore";
 
 type HeaderField = {
-  id: number;
+  id: string;
   key: string;
   value: string;
   description: string;
 };
 
 function RequestHeaders() {
-  const headerFields = useRequestStore((state) => state.headerFields);
-  const addHeaderField = useRequestStore((state) => state.addHeaderField);
-  const removeHeaderField = useRequestStore((state) => state.removeHeaderField);
-  const updateHeaderField = useRequestStore((state) => state.updateHeaderField);
+  const activeTab = useTabsStore((state) =>
+    state.tabs.find((t) => t.id === state.activeTabId)
+  );
+  const updateActiveTab = useTabsStore((state) => state.updateActiveTab);
+  const addHeaderField = useTabsStore((state) => state.addHeaderField);
+  const removeHeaderField = useTabsStore((state) => state.removeHeaderField);
 
   return (
     <div className="p-4">
       <h1 className="text-xl font-semibold mb-4">Headers</h1>
 
-      {headerFields.map((field: HeaderField) => (
+      {activeTab?.headerFields.map((field: HeaderField) => (
         <div
           key={field.id}
           className="mb-3 flex flex-col md:flex-row md:items-center gap-2"
@@ -28,7 +31,13 @@ function RequestHeaders() {
             placeholder="Key"
             className="px-3 py-2 rounded-md border border-gray-300 w-full md:w-1/4 focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={field.key}
-            onChange={(e) => updateHeaderField(field.id, 'key', e.target.value)}
+            onChange={(e) =>
+              updateActiveTab({
+                headerFields: activeTab.headerFields.map((f) =>
+                  f.id === field.id ? { ...f, key: e.target.value } : f
+                ),
+              })
+            }
           />
 
           <input
@@ -36,7 +45,13 @@ function RequestHeaders() {
             placeholder="Value"
             className="px-3 py-2 rounded-md border border-gray-300 w-full md:w-1/3 focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={field.value}
-            onChange={(e) => updateHeaderField(field.id, 'value', e.target.value)}
+            onChange={(e) =>
+              updateActiveTab({
+                headerFields: activeTab.headerFields.map((f) =>
+                  f.id === field.id ? { ...f, value: e.target.value } : f
+                ),
+              })
+            }
           />
 
           <input
@@ -44,7 +59,13 @@ function RequestHeaders() {
             placeholder="Description"
             className="px-3 py-2 rounded-md border border-gray-300 w-full md:flex-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={field.description}
-            onChange={(e) => updateHeaderField(field.id, 'description', e.target.value)}
+            onChange={(e) =>
+              updateActiveTab({
+                headerFields: activeTab.headerFields.map((f) =>
+                  f.id === field.id ? { ...f, description: e.target.value } : f
+                ),
+              })
+            }
           />
 
           <button

@@ -1,24 +1,28 @@
-import useRequestStore from "@/store/requestStore";
+import React from "react";
+import { useTabsStore } from "@/store/TabManagementStore";
 
 function ResponseViewer() {
-  const responseStatus = useRequestStore((state) => state.responseStatus);
-  const responseBody = useRequestStore((state) => state.responseBody);
+  const { tabs, activeTabId } = useTabsStore();
+  const tabData = tabs.find((tab) => tab.id === activeTabId);
+
+  if (!tabData) return null;
+
+  const { responseStatus, responseBody } = tabData;
 
   return (
-    <div className="border rounded bg-gray-100 p-4 mt-6 w-full max-h-64 overflow-auto">
-      <div
-        className={`font-semibold mb-2 ${
-          responseStatus.startsWith("2")
-            ? "text-green-600"
-            : "text-red-600"
-        }`}
-      >
-        {responseStatus}
-      </div>
-      <div className="font-mono text-sm whitespace-pre-wrap break-words">
-        {responseBody}
-      </div>
-    </div>
+    <div className="border rounded bg-gray-800 p-4 mt-6 w-full max-h-64 overflow-auto">
+  <div
+    className={`font-semibold mb-2 ${
+      responseStatus.startsWith("2") ? "text-green-400" : "text-red-400"
+    }`}
+  >
+    {responseStatus}
+  </div>
+  <div className="font-mono text-sm whitespace-pre-wrap break-words text-gray-200">
+    {responseBody}
+  </div>
+</div>
+
   );
 }
 

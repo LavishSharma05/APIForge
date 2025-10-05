@@ -1,23 +1,35 @@
 import React from "react";
-import useRequestStore from "@/store/requestStore";
+import { useTabsStore } from "@/store/TabManagementStore";
 
 function RequestBodyDropDown() {
-  const bodyType = useRequestStore((state) => state.bodyType);
-  const setField = useRequestStore((state) => state.setField);
+  const { tabs, activeTabId, updateActiveTab } = useTabsStore();
+  const tabData = tabs.find((tab) => tab.id === activeTabId);
+
+  if (!tabData) return null;
+
+  const { bodyType } = tabData;
+
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value as typeof tabData.bodyType;
+    updateActiveTab({ bodyType: value });
+  };
 
   return (
     <div className="mt-4 w-full">
       <label
         htmlFor="bodyType"
-        className="block mb-1 text-sm font-medium text-gray-700"
+        className="block mb-1 text-sm font-medium text-gray-800"
       >
         Body Type
       </label>
       <select
         id="bodyType"
         value={bodyType}
-        onChange={(e) => setField("bodyType", e.target.value)}
-        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+        onChange={handleChange}
+        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md shadow-sm 
+                   bg-white text-gray-900
+                   focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 
+                   transition"
       >
         <option value="none">None</option>
         <option value="json">JSON</option>

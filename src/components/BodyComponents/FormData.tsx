@@ -1,8 +1,8 @@
 import React from "react";
-import useRequestStore from "@/store/requestStore";
+import { useTabsStore } from "@/store/TabManagementStore";
 
 type FormField = {
-  id: number;
+  id: string;
   key: string;
   value: string | File;
   type: "text" | "file";
@@ -10,10 +10,16 @@ type FormField = {
 };
 
 function FormData() {
-  const formFields = useRequestStore((state) => state.formFields);
-  const addFormField = useRequestStore((state) => state.addFormField);
-  const removeFormField = useRequestStore((state) => state.removeFormField);
-  const updateFormField = useRequestStore((state) => state.updateFormField);
+  const { tabs, activeTabId, addFormField, removeFormField, updateFormField } = useTabsStore();
+  const activeTab = tabs.find((tab) => tab.id === activeTabId);
+
+  if (!activeTab) return null;
+
+  const { formFields } = activeTab;
+
+  const handleAdd = () => {
+    addFormField();
+  };
 
   return (
     <div className="mt-6">
@@ -32,7 +38,7 @@ function FormData() {
           {/* Type Selector */}
           <select
             value={field.type}
-            onChange={(e) => updateFormField(field.id, "type", e.target.value)}
+            onChange={(e) => updateFormField(field.id, "type", e.target.value as "text" | "file")}
             className="border p-2 rounded"
           >
             <option value="text">Text</option>
@@ -45,9 +51,7 @@ function FormData() {
               key="text"
               type="text"
               value={typeof field.value === "string" ? field.value : ""}
-              onChange={(e) =>
-                updateFormField(field.id, "value", e.target.value)
-              }
+              onChange={(e) => updateFormField(field.id, "value", e.target.value)}
               placeholder="Value"
               className="border p-2 rounded w-[200px]"
             />
@@ -55,9 +59,7 @@ function FormData() {
             <input
               key="file"
               type="file"
-              onChange={(e) =>
-                updateFormField(field.id, "value", e.target.files?.[0] ?? null)
-              }
+              onChange={(e) => updateFormField(field.id, "value", e.target.files?.[0] ?? null)}
               className="border p-2 rounded"
             />
           )}
@@ -66,9 +68,7 @@ function FormData() {
           <input
             type="text"
             value={field.description}
-            onChange={(e) =>
-              updateFormField(field.id, "description", e.target.value)
-            }
+            onChange={(e) => updateFormField(field.id, "description", e.target.value)}
             placeholder="Description"
             className="border p-2 rounded w-[200px]"
           />
@@ -84,7 +84,7 @@ function FormData() {
       ))}
 
       <button
-        onClick={addFormField}
+        onClick={handleAdd}
         className="mt-2 px-4 py-2 bg-blue-600 text-white rounded"
       >
         ➕ Add Row

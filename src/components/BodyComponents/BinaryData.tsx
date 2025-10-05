@@ -1,9 +1,18 @@
-import useRequestStore from '@/store/requestStore';
 import React from 'react';
+import { useTabsStore } from '@/store/TabManagementStore';
 
 function BinaryData() {
-  const binaryBody = useRequestStore((state) => state.binaryBody);
-  const setField = useRequestStore((state) => state.setField);
+  const { tabs, activeTabId, updateActiveTab } = useTabsStore();
+  const tabData = tabs.find((tab) => tab.id === activeTabId);
+
+  if (!tabData) return null;
+
+  const { binaryBody } = tabData;
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] ?? null;
+    updateActiveTab({ binaryBody: file });
+  };
 
   return (
     <div className="mt-6 p-4 rounded-xl border border-gray-300 shadow-sm bg-white dark:bg-zinc-900 dark:border-zinc-700">
@@ -12,7 +21,7 @@ function BinaryData() {
       <input
         type="file"
         accept="application/pdf,image/*,video/*,audio/*"
-        onChange={(e) => setField("binaryBody", e.target.files?.[0] ?? null)}
+        onChange={handleFileChange}
         className="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4
           file:rounded-lg file:border-0
           file:text-sm file:font-semibold
