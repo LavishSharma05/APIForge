@@ -120,10 +120,8 @@ export const useTabsStore = create<TabsState>((set, get) => ({
     const tab = get().tabs.find(t => t.id === get().activeTabId);
     if (!tab) return;
     get().updateActiveTab({
-      // FIXED: Use type assertion to satisfy TypeScript's strict checking for computed property names
       formFields: tab.formFields.map((field) => {
         if (field.id === id) {
-          // Temporarily assert the resulting object back to FormField
           return { ...field, [fieldName]: newValue } as FormField;
         }
         return field;
